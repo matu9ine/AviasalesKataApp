@@ -17,7 +17,7 @@ const filterLabels: Record<FilterKey, string> = {
 }
 
 export const Sidebar: React.FC = () => {
-  const selectedFilter = useSelector((state: RootState) => state.filters.selectedFilter)
+  const currentFilter = useSelector((state: RootState) => state.filters.filter)
   const dispatch = useDispatch()
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,12 +35,11 @@ export const Sidebar: React.FC = () => {
               className={`${classes.input} ${classes['input--visually-hidden']}`}
               type="radio"
               id={key}
-              name="filters"
               value={key}
-              checked={selectedFilter === key}
+              checked={currentFilter === key}
               onChange={handleFilterChange}
             />
-            <span className={classes.checker} />
+            <span className={`${classes.checker}`} />
             {label}
           </label>
         ))}

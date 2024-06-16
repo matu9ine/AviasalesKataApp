@@ -1,21 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-type FilterKey = 'all' | 'none' | 'one' | 'two' | 'three'
-
-interface FiltersState {
-  selectedFilter: FilterKey
-}
+import { FiltersState } from '@/assets/types/filtersTypes'
 
 const initialState: FiltersState = {
-  selectedFilter: 'all',
+  filter: 'all',
 }
 
 const filtersSlice = createSlice({
   name: 'filters',
   initialState,
   reducers: {
-    setFilter: (state, action: PayloadAction<FilterKey>) => {
-      state.selectedFilter = action.payload
+    setFilter: (state, action: PayloadAction<'all' | 'none' | 'one' | 'two' | 'three'>) => {
+      state.filter = action.payload
     },
   },
 })
