@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
 import { Spin } from 'antd'
 
+import { FiltersState } from '@/assets/types/filtersTypes' // Переместите этот импорт в начало списка
 import { Ticket } from '@/components/Ticket'
 import { useTypedSelector } from '@/hooks/useTypedSelector'
 import { fetchSearchId, fetchTickets } from '@/store/slices/ticketsSlice'
@@ -16,20 +17,24 @@ export const TicketList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { tickets, token, loading, stop } = useTypedSelector((state) => state.tickets)
   const { currentSort } = useTypedSelector((state) => state.sorting)
-  const filters = useTypedSelector((state) => state.filters)
+  const filters: FiltersState = useTypedSelector((state) => state.filters)
+
   useEffect(() => {
     if (!token) {
       dispatch(fetchSearchId())
     }
   }, [token])
+
   useEffect(() => {
     if (token && !stop && !loading) {
       dispatch(fetchTickets(token))
     }
   }, [token, stop, loading])
+
   const [count, setCount] = useState(5)
   const sortedTickets = sort([...tickets], currentSort)
   const filteredTickets = useMemo(() => filter(sortedTickets || [], filters), [sortedTickets, filters])
+
   function renderTickets() {
     if (filteredTickets.length) {
       return filteredTickets.map((ticket, i) => {
@@ -42,7 +47,7 @@ export const TicketList: React.FC = () => {
         )
       })
     }
-    if (Object.values(filters).every((value) => value === false)) {
+    if (Object.values(filters).every((value) => !value)) {
       return 'Ни один из фильтров не активен.'
     }
     if (!stop) {
@@ -50,6 +55,7 @@ export const TicketList: React.FC = () => {
     }
     return 'Билетов по заданным параметрам не найдено.'
   }
+
   return (
     <ul className={classes.tickets}>
       {!stop && <Spin className={classes.tickets__loading} />}
