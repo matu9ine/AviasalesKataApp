@@ -5,8 +5,8 @@ import { Spin } from 'antd'
 import { Ticket } from '@/components/Ticket'
 import { useTypedSelector } from '@/hooks/useTypedSelector'
 import { fetchSearchId, fetchTickets } from '@/store/slices/ticketsSlice'
-import { AppDispatch } from '@/store'
-import { FiltersState } from '@/assets/types/filtersTypes'
+import { AppDispatch, RootState } from '@/store'
+import { FiltersState } from '@/assets/types/filtersTypes' // Импортируйте интерфейс FiltersState
 
 import sort from '../../helperFunctions/sort'
 import filter from '../../helperFunctions/filter'
@@ -17,7 +17,8 @@ export const TicketList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { tickets, token, loading, stop } = useTypedSelector((state) => state.tickets)
   const { currentSort } = useTypedSelector((state) => state.sorting)
-  const filters = useTypedSelector((state) => state.filters) as unknown as FiltersState
+  const filters: FiltersState = useTypedSelector((state: RootState) => state.filters)
+  // Убедитесь, что правильно используете тип
 
   useEffect(() => {
     if (!token) {

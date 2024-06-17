@@ -6,8 +6,8 @@ import sortingReducer from '@/store/slices/sortingSlice'
 
 const store = configureStore({
   reducer: {
-    tickets: ticketsReducer,
     filters: filtersReducer,
+    tickets: ticketsReducer,
     sorting: sortingReducer,
   },
 })
