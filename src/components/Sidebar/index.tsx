@@ -2,7 +2,7 @@ import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { RootState } from '@/store'
-import { setAll, setSpecific } from '@/store/slices/filtersSlice'
+import { setFilter } from '@/store/slices/filtersSlice' // Имя действия может измениться в зависимости от вашей реализации
 
 import classes from './Sidebar.module.scss'
 
@@ -17,32 +17,30 @@ const filterLabels: Record<FilterKey, string> = {
 }
 
 export const Sidebar: React.FC = () => {
-  const filters = useSelector((state: RootState) => state.filters)
+  const selectedFilter = useSelector((state: RootState) => state.filters.selectedFilter)
   const dispatch = useDispatch()
 
-  const handleAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setAll(event.target.checked))
+  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const filterKey = event.target.value as FilterKey
+    dispatch(setFilter(filterKey))
   }
 
-  const handleSpecificChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const filterKey = event.target.id as keyof typeof filters
-    dispatch(setSpecific({ filter: filterKey, checked: event.target.checked }))
-  }
   return (
     <aside className={classes.sidebar}>
       <h3>Количество пересадок</h3>
       <form>
-        {Object.entries(filters).map(([key, value]) => (
+        {Object.entries(filterLabels).map(([key, label]) => (
           <label htmlFor={key} key={key}>
             <input
               className={`${classes.input} ${classes['input--visually-hidden']}`}
-              type="checkbox"
+              type="radio"
               id={key}
-              checked={value}
-              onChange={key === 'all' ? handleAllChange : handleSpecificChange}
+              value={key}
+              checked={selectedFilter === key}
+              onChange={handleFilterChange}
             />
             <span className={`${classes.checker}`} />
-            {filterLabels[key as FilterKey]}
+            {label}
           </label>
         ))}
       </form>

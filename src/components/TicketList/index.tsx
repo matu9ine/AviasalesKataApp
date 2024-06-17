@@ -6,6 +6,7 @@ import { Ticket } from '@/components/Ticket'
 import { useTypedSelector } from '@/hooks/useTypedSelector'
 import { fetchSearchId, fetchTickets } from '@/store/slices/ticketsSlice'
 import { AppDispatch } from '@/store'
+import { FiltersState } from '@/assets/types/filtersTypes'
 
 import sort from '../../helperFunctions/sort'
 import filter from '../../helperFunctions/filter'
@@ -16,45 +17,50 @@ export const TicketList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { tickets, token, loading, stop } = useTypedSelector((state) => state.tickets)
   const { currentSort } = useTypedSelector((state) => state.sorting)
-  const filters = useTypedSelector((state) => state.filters)
+  const filters = useTypedSelector((state) => state.filters) as unknown as FiltersState
+
   useEffect(() => {
     if (!token) {
       dispatch(fetchSearchId())
     }
   }, [token])
+
   useEffect(() => {
     if (token && !stop && !loading) {
       dispatch(fetchTickets(token))
     }
   }, [token, stop, loading])
+
   const [count, setCount] = useState(5)
+
+  // Сортируем и фильтруем билеты
   const sortedTickets = sort([...tickets], currentSort)
   const filteredTickets = useMemo(() => filter(sortedTickets || [], filters), [sortedTickets, filters])
+
   function renderTickets() {
     if (filteredTickets.length) {
-      return filteredTickets.map((ticket, i) => {
-        if (i >= count) return null
-        return (
+      return filteredTickets
+        .slice(0, count)
+        .map((ticket) => (
           <Ticket
-            data={ticket}
             key={`${ticket.segments[0].origin}-${ticket.segments[1].destination}-${ticket.segments[1].date}-${Math.random()}`}
+            data={ticket}
           />
-        )
-      })
+        ))
     }
-    if (Object.values(filters).every((value) => value === false)) {
-      return 'Ни один из фильтров не активен.'
+
+    if (!stop && !loading) {
+      return <div>Ожидайте окончания поиска...</div>
     }
-    if (!stop) {
-      return 'Ожидайте окончания поиска'
-    }
-    return 'Билетов по заданным параметрам не найдено.'
+
+    return <div>Билетов по заданным параметрам не найдено.</div>
   }
+
   return (
     <ul className={classes.tickets}>
-      {!stop && <Spin className={classes.tickets__loading} />}
+      {loading && <Spin className={classes.tickets__loading} />}
       {renderTickets()}
-      {filteredTickets.length > count ? (
+      {filteredTickets.length > count && (
         <button
           className={`${classes.tickets__button} ${classes.button}`}
           type="button"
@@ -62,7 +68,7 @@ export const TicketList: React.FC = () => {
         >
           Показать еще 5 билетов!
         </button>
-      ) : null}
+      )}
     </ul>
   )
 }
