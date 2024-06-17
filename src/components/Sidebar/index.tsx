@@ -2,7 +2,7 @@ import React from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { RootState } from '@/store'
-import { setFilter } from '@/store/slices/filtersSlice'
+import { setAll, setSpecific } from '@/store/slices/filtersSlice'
 
 import classes from './Sidebar.module.scss'
 
@@ -17,30 +17,32 @@ const filterLabels: Record<FilterKey, string> = {
 }
 
 export const Sidebar: React.FC = () => {
-  const currentFilter = useSelector((state: RootState) => state.filters.filter)
+  const filters = useSelector((state: RootState) => state.filters)
   const dispatch = useDispatch()
 
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const filterKey = event.target.value as FilterKey
-    dispatch(setFilter(filterKey))
+  const handleAllChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setAll(event.target.checked))
   }
 
+  const handleSpecificChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const filterKey = event.target.id as keyof typeof filters
+    dispatch(setSpecific({ filter: filterKey, checked: event.target.checked }))
+  }
   return (
     <aside className={classes.sidebar}>
       <h3>Количество пересадок</h3>
       <form>
-        {Object.entries(filterLabels).map(([key, label]) => (
+        {Object.entries(filters).map(([key, value]) => (
           <label htmlFor={key} key={key}>
             <input
               className={`${classes.input} ${classes['input--visually-hidden']}`}
-              type="radio"
+              type="checkbox"
               id={key}
-              value={key}
-              checked={currentFilter === key}
-              onChange={handleFilterChange}
+              checked={value}
+              onChange={key === 'all' ? handleAllChange : handleSpecificChange}
             />
             <span className={`${classes.checker}`} />
-            {label}
+            {filterLabels[key as FilterKey]}
           </label>
         ))}
       </form>

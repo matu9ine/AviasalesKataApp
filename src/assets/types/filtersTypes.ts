@@ -1,4 +1,7 @@
-// src/assets/types/filtersTypes.ts
 export interface FiltersState {
-  filter: 'all' | 'none' | 'one' | 'two' | 'three'
+  all: boolean
+  none: boolean
+  one: boolean
+  two: boolean
+  three: boolean
 }
